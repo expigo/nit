@@ -8,6 +8,8 @@ const chalk = require('chalk')
 
 const {resolveAbsolutePath} = require('./utils/index')
 const Workspace = require('./model/Workspace')
+const Database = require('./model/Database')
+const Blob = require('./model/Blob')
 
 var parseArgs = require("minimist")(process.argv.slice(2), {
     boolean: ["help"],
@@ -30,12 +32,22 @@ switch (parseArgs._[0]) {
 
         if(!fs.existsSync(gitPath)) {     
             console.log('cwd is not a nit repo');
-            process.exit(1)
+            process.exitCode = 1
         }
 
 
         const ws = new Workspace(rootPath)
-        console.log(ws.listFiles());
+        const database = new Database(dbPath)
+        ws.listFiles().filter(file => !file.isDirectory()) // TODO: we need to go deeper! (store dirs as well)
+                      .map(file => file.name)
+                      .forEach(function storeFile(file) {
+                          var data = ws.readFile(file)
+                          var blob = new Blob(data)
+
+                            database.store(blob)
+
+                      })
+
 
         break;
     default:
@@ -53,7 +65,6 @@ function printHelp() {
     console.log('init [dir]     initialize new repo');  
     console.log('commit         commit changes');  
     console.log()
-    process.exit(0)
 }
 
 function error(msg, includeHelp = false) {
@@ -79,8 +90,7 @@ function repoInit(optRelativePath) {
         console.log(`Successfully initialized empty Nit repo in : ${gitPath}`);
     } else {
         console.error('Something went wrong ... 🤷‍♂');
-        process.exit(1)
+        process.exitCode = 1
     }
-    
-    process.exit(0)
+
 }
