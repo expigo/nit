@@ -10,23 +10,31 @@ var parseArgs = require("minimist")(process.argv.slice(2), {
     // string: ["init"]
 })
 
-if(parseArgs._[0] == 'init') {
-    console.log('init', parseArgs._[1] || process.cwd())
+if(parseArgs.help) {
+    printHelp()
+} else if(parseArgs._[0] == 'init') {
 
-    var root_path = parseArgs._[1] || process.cwd()
-    var git_path = path.join(root_path, '.nit');
+    var rootPath = parseArgs._[1] || process.cwd()
+    var gitPath = path.join(rootPath, '.nit');
+
+    if(fs.existsSync(gitPath)) {
+        console.log(`Repo already initialized in: ${gitPath}`);
+        process.exit(0)
+    }
 
     ['objects', 'refs'].forEach(dir => {
-        fs.mkdir(path.join(git_path, dir), { recursive: true }, function mkdirError(err) {
-            if (err) throw err;
+        fs.mkdir(path.join(gitPath, dir), { recursive: true }, function mkdirError(err, path) {
+            if (err) {
+                console.log(`ERROR creating directory: ${path}`);
+                throw err;
+            }
         })
     });
+    console.log(`Successfully initialized empty Nit repo in : ${gitPath}`);
 } else {
     console.log('not init');
 }
 
-console.log(parseArgs);
-printHelp()
 
 // ******************
 function printHelp() {
