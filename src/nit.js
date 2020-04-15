@@ -53,13 +53,13 @@ function repoInit(optRelativePath) {
     if(!fs.existsSync(gitPath)) {     
         ['objects', 'refs'].forEach(dir => fs.mkdirSync(path.join(gitPath, dir), { recursive: true }))
     } else {
-        console.log(`Repo already initialized in: ${gitPath}`);
+        console.info(`Repo already initialized in: ${gitPath}`);
     }
 
     if(fs.existsSync(gitPath)) {
         console.log(`Successfully initialized empty Nit repo in : ${gitPath}`);
     } else {
-        console.log('Something went wrong ... 🤷‍♂');
+        console.error('Something went wrong ... 🤷‍♂');
         process.exit(1)
     }
     
