@@ -5,6 +5,8 @@ const fs = require('fs')
 const path = require('path')
 const chalk = require('chalk')
 
+const {resolveAbsolutePath} = require('./utils/index')
+
 var parseArgs = require("minimist")(process.argv.slice(2), {
     boolean: ["help"],
     // string: ["init"]
@@ -12,27 +14,16 @@ var parseArgs = require("minimist")(process.argv.slice(2), {
 
 if(parseArgs.help) {
     printHelp()
-} else if(parseArgs._[0] == 'init') {
+}
 
-    var rootPath = parseArgs._[1] || process.cwd()
-    var gitPath = path.join(rootPath, '.nit');
+switch (parseArgs._[0]) {
+    case 'init':
+        repoInit(parseArgs._[1])
+        break;
 
-    if(fs.existsSync(gitPath)) {
-        console.log(`Repo already initialized in: ${gitPath}`);
-        process.exit(0)
-    }
+    default:
+        error(`Not a nit command: ${parseArgs._[0]}`)
 
-    ['objects', 'refs'].forEach(dir => {
-        fs.mkdir(path.join(gitPath, dir), { recursive: true }, function mkdirError(err, path) {
-            if (err) {
-                console.log(`ERROR creating directory: ${path}`);
-                throw err;
-            }
-        })
-    });
-    console.log(`Successfully initialized empty Nit repo in : ${gitPath}`);
-} else {
-    console.log('not init');
 }
 
 
@@ -42,6 +33,35 @@ function printHelp() {
     console.log('    nit --help')
     console.log()
     console.log('--help         prints this help');  
-    console.log('init           initialize new repo');  
+    console.log('init [dir]     initialize new repo');  
     console.log()
+    process.exit(0)
+}
+
+function error(msg, includeHelp = false) {
+    console.error(msg)
+    if(includeHelp) {
+        console.log()
+        printHelp()
+    }
+}
+
+function repoInit(optRelativePath) {
+    var rootPath = resolveAbsolutePath(process.cwd())(optRelativePath)
+    var gitPath = path.join(rootPath, '.nit')
+
+    if(!fs.existsSync(gitPath)) {     
+        ['objects', 'refs'].forEach(dir => fs.mkdirSync(path.join(gitPath, dir), { recursive: true }))
+    } else {
+        console.log(`Repo already initialized in: ${gitPath}`);
+    }
+
+    if(fs.existsSync(gitPath)) {
+        console.log(`Successfully initialized empty Nit repo in : ${gitPath}`);
+    } else {
+        console.log('Something went wrong ... 🤷‍♂');
+        process.exit(1)
+    }
+    
+    process.exit(0)
 }
