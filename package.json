@@ -1,0 +1,15 @@
+{
+  "name": "nit",
+  "version": "0.0.1",
+  "main": "index.js",
+  "repository": "https://github.com/expigo/nit.git",
+  "author": "Kryspin Musiol <kryspin.musiol@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^25.3.0"
+  },
+  "dependencies": {
+    "chalk": "^4.0.0",
+    "minimist": "^1.2.5"
+  }
+}
