@@ -8,7 +8,7 @@ class Workspace {
     }
 
     listFiles() {
-        return fs.readdirSync(this.#pathname, { withFileTypes: true})
+        return fs.readdirSync(this.#pathname, { withFileTypes: true}).filter(obj => !Workspace.IGNORE.includes(obj.name))
     }
 
 }

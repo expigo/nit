@@ -24,8 +24,6 @@ switch (parseArgs._[0]) {
         break;
     case 'commit':
 
-
-
         const rootPath = resolveAbsolutePath(process.cwd())()
         const gitPath = path.join(rootPath, '.nit')
         const dbPath = path.join(gitPath, 'objects')
@@ -36,7 +34,7 @@ switch (parseArgs._[0]) {
         }
 
 
-        const ws = new Workspace(dbPath)
+        const ws = new Workspace(rootPath)
         console.log(ws.listFiles());
 
         break;
@@ -53,6 +51,7 @@ function printHelp() {
     console.log()
     console.log('--help         prints this help');  
     console.log('init [dir]     initialize new repo');  
+    console.log('commit         commit changes');  
     console.log()
     process.exit(0)
 }
@@ -73,6 +72,7 @@ function repoInit(optRelativePath) {
         ['objects', 'refs'].forEach(dir => fs.mkdirSync(path.join(gitPath, dir), { recursive: true }))
     } else {
         console.info(`Repo already initialized in: ${gitPath}`);
+        process.exit(126)
     }
 
     if(fs.existsSync(gitPath)) {
