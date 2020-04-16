@@ -10,6 +10,8 @@ const {resolveAbsolutePath} = require('./utils/index')
 const Workspace = require('./model/Workspace')
 const Database = require('./model/Database')
 const Blob = require('./model/Blob')
+const Entry = require('./model/Entry')
+const Tree = require('./model/Tree')
 
 var parseArgs = require("minimist")(process.argv.slice(2), {
     boolean: ["help"],
@@ -81,20 +83,26 @@ function onCommit() {
 
     if(!fs.existsSync(gitPath)) {     
         console.log('cwd is not a nit repo');
-        process.exitCode = 1
+        process.exit(1)
     }
 
 
     const ws = new Workspace(rootPath)
     const database = new Database(dbPath)
-    ws.listFiles().filter(file => !file.isDirectory()) // TODO: we need to go deeper! (store dirs as well)
-                  .map(file => file.name)
-                  .forEach(function storeFile(file) {
-                      var data = ws.readFile(file)
+
+    var entries = ws.listFiles().filter(file => !file.isDirectory()) // TODO: we need to go deeper! (store dirs as well)
+                //   .map(file => file.name)
+                  .map(function storeFile(file) {
+                      var data = ws.readFile(file.name)
                       var blob = new Blob(data)
 
-                        database.store(blob)
+                    database.store(blob)
 
+                    return new Entry(file.name, blob.id)
                   })
+
+
+    const tree = new Tree(entries)
+    console.log(tree, entries);
 
 }
