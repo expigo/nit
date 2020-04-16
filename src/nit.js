@@ -25,29 +25,7 @@ switch (parseArgs._[0]) {
         repoInit(parseArgs._[1])
         break;
     case 'commit':
-
-        const rootPath = resolveAbsolutePath(process.cwd())()
-        const gitPath = path.join(rootPath, '.nit')
-        const dbPath = path.join(gitPath, 'objects')
-
-        if(!fs.existsSync(gitPath)) {     
-            console.log('cwd is not a nit repo');
-            process.exitCode = 1
-        }
-
-
-        const ws = new Workspace(rootPath)
-        const database = new Database(dbPath)
-        ws.listFiles().filter(file => !file.isDirectory()) // TODO: we need to go deeper! (store dirs as well)
-                      .map(file => file.name)
-                      .forEach(function storeFile(file) {
-                          var data = ws.readFile(file)
-                          var blob = new Blob(data)
-
-                            database.store(blob)
-
-                      })
-
+        onCommit()
 
         break;
     default:
@@ -92,5 +70,31 @@ function repoInit(optRelativePath) {
         console.error('Something went wrong ... 🤷‍♂');
         process.exitCode = 1
     }
+
+}
+
+function onCommit() {
+
+    const rootPath = resolveAbsolutePath(process.cwd())()
+    const gitPath = path.join(rootPath, '.nit')
+    const dbPath = path.join(gitPath, 'objects')
+
+    if(!fs.existsSync(gitPath)) {     
+        console.log('cwd is not a nit repo');
+        process.exitCode = 1
+    }
+
+
+    const ws = new Workspace(rootPath)
+    const database = new Database(dbPath)
+    ws.listFiles().filter(file => !file.isDirectory()) // TODO: we need to go deeper! (store dirs as well)
+                  .map(file => file.name)
+                  .forEach(function storeFile(file) {
+                      var data = ws.readFile(file)
+                      var blob = new Blob(data)
+
+                        database.store(blob)
+
+                  })
 
 }
