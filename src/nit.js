@@ -103,6 +103,7 @@ function onCommit() {
 
 
     const tree = new Tree(entries)
-    console.log(tree, entries);
+    database.store(tree)
+    console.log(tree, entries.map(e => `${e.name}  ${e.id}`));
 
 }

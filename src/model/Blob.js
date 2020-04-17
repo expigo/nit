@@ -20,7 +20,7 @@ class Blob {
     }
 
     getContent() {
-        return `${this.TYPE} ${this.getByteLength()}\0${this.toString('utf8')}`
+        return `${this.TYPE} ${this.getByteLength()}\0${this.toString()}`
     }
 }
 

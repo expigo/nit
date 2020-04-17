@@ -106,3 +106,5 @@ dist
 # project-specific
 **/.nit
 test.js
+elo
+encoder.js
