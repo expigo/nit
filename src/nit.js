@@ -12,6 +12,8 @@ const Database = require('./model/Database')
 const Blob = require('./model/Blob')
 const Entry = require('./model/Entry')
 const Tree = require('./model/Tree')
+const Author = require('./model/Author')
+const Commit = require('./model/Commit')
 
 var parseArgs = require("minimist")(process.argv.slice(2), {
     boolean: ["help"],
@@ -61,6 +63,9 @@ function repoInit(optRelativePath) {
 
     if(!fs.existsSync(gitPath)) {     
         ['objects', 'refs'].forEach(dir => fs.mkdirSync(path.join(gitPath, dir), { recursive: true }))
+        fs.writeFile(path.join(gitPath, `COMMIT_EDITMSG`), 'init commit', function (err) {
+            if (err) return console.log(err);
+          });
     } else {
         console.info(`Repo already initialized in: ${gitPath}`);
         process.exit(126)
@@ -104,6 +109,35 @@ function onCommit() {
 
     const tree = new Tree(entries)
     database.store(tree)
-    console.log(tree, entries.map(e => `${e.name}  ${e.id}`));
 
+
+    const name = process.env.NIT_AUTHOR_NAME
+    const email = process.env.NIT_AUTHOR_EMAIL
+    const author = new Author(name, email)
+   
+    var message = ''
+
+    process.stdin.setEncoding('utf8');
+
+    process.stdin.on('readable', () => {
+        let chunk
+        while ((chunk = process.stdin.read()) !== null) {
+            message += chunk
+        }
+    })
+
+    process.stdin.on('end', () => {
+        const commit = new Commit(tree.id, author, message)
+        fs.writeFile(path.join(gitPath, 'HEAD'), commit, {
+            mode: '0644',
+            flag: fs.constants.O_WRONLY | fs.constants.O_CREAT
+        }, ()=> {
+
+            console.log(`[root-commit ${commit.id}] ${message.split('\n')[0]}`);
+        })
+        database.store(commit)
+    })
+
+
+        
 }

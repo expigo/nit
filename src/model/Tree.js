@@ -14,8 +14,6 @@ class Tree {
     }
 
     toString() {
-        console.log('$$$',this.#id);
-
         const encoded = this.#entries.map(e => encodeTree(Tree.MODE, e.name, e.id))
         return encoded.toString('utf8')
     }

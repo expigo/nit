@@ -9,7 +9,7 @@
     "jest": "^25.3.0"
   },
   "scripts": {
-    "start": "cd src && ls && (rm -r .nit || :) && ./nit.js init && ./nit.js commit"
+    "start": "cd src && (rm -r .nit || :) && ./nit.js init && (cat ./.nit/COMMIT_EDITMSG | ./nit.js commit)"
   },
   "dependencies": {
     "chalk": "^4.0.0",

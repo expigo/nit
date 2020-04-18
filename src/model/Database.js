@@ -10,7 +10,6 @@ class Database {
 
     
     store(object) {
-        console.log(object);
         this.writeObject(this.#pathname, object.id, object.getContent())
     }
 
@@ -30,8 +29,6 @@ module.exports = Database
 
 function write(pathname, id, content) {
 
-    console.log(arguments[0], arguments[1]);
-
     var objectPath = path.join(pathname, id.slice(0, 2), id.slice(2))
     var dirname = path.dirname(objectPath)
     const r = generateTempFilename()
@@ -43,7 +40,6 @@ function write(pathname, id, content) {
         
     } catch (err) {
         if (err.code == 'ENOENT') {
-            // console.log(`dir '${dirname}' does not exist- creating one...`);
             fs.mkdirSync(dirname, { recursive: true })
             var fd = fs.openSync(tempPath, 'w+')
         }
