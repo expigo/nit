@@ -3,8 +3,10 @@ class Commit {
     #tree
     #author
     #message
+    #parent
 
-    constructor(tree, author, message) {
+    constructor(parent, tree, author, message) {
+        this.#parent
         this.#tree = tree
         this.#author = author
         this.#message = message
@@ -17,7 +19,7 @@ class Commit {
     }
 
     toString() {
-        return `tree ${this.#tree}
+        return `tree ${this.#tree}${this.#parent?`\nparent${this.#parent}`: ''}
 author ${this.#author}
 committer ${this.#author}
                 

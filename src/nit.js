@@ -14,6 +14,7 @@ const Entry = require('./model/Entry')
 const Tree = require('./model/Tree')
 const Author = require('./model/Author')
 const Commit = require('./model/Commit')
+const Refs = require('./model/Refs')
 
 var parseArgs = require("minimist")(process.argv.slice(2), {
     boolean: ["help"],
@@ -64,7 +65,10 @@ function repoInit(optRelativePath) {
     if(!fs.existsSync(gitPath)) {     
         ['objects', 'refs'].forEach(dir => fs.mkdirSync(path.join(gitPath, dir), { recursive: true }))
         fs.writeFile(path.join(gitPath, `COMMIT_EDITMSG`), 'init commit', function (err) {
-            if (err) return console.log(err);
+            if (err) {
+                console.error(err)
+                process.exit(1)
+            }
           });
     } else {
         console.info(`Repo already initialized in: ${gitPath}`);
@@ -94,6 +98,7 @@ function onCommit() {
 
     const ws = new Workspace(rootPath)
     const database = new Database(dbPath)
+    const  refs = new Refs(gitPath)
 
     var entries = ws.listFiles().filter(file => !file.isDirectory()) // TODO: we need to go deeper! (store dirs as well)
                 //   .map(file => file.name)
@@ -111,9 +116,11 @@ function onCommit() {
     database.store(tree)
 
 
+    const parent = refs.readHead()
     const name = process.env.NIT_AUTHOR_NAME
     const email = process.env.NIT_AUTHOR_EMAIL
     const author = new Author(name, email)
+
    
     var message = ''
 
@@ -126,16 +133,16 @@ function onCommit() {
         }
     })
 
+    const commit = new Commit(parent, tree.id, author, message)
     process.stdin.on('end', () => {
-        const commit = new Commit(tree.id, author, message)
-        fs.writeFile(path.join(gitPath, 'HEAD'), commit, {
-            mode: '0644',
-            flag: fs.constants.O_WRONLY | fs.constants.O_CREAT
-        }, ()=> {
 
-            console.log(`[root-commit ${commit.id}] ${message.split('\n')[0]}`);
-        })
         database.store(commit)
+        refs.updateHead(commit.id)
+
+        var isRoot = parent ? "" : "(root-commit)" 
+
+        console.log(`[${isRoot} ${commit.id}] ${message.split('\n')[0]}`);
+
     })
 
 
