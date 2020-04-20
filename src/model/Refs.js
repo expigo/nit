@@ -1,6 +1,9 @@
 const fs = require('fs')
 const path = require('path')
 
+const Lockfile = require('./Lockfile')
+const { LockDenied } = require('../utils/errors/LockErrors')
+
 class Refs {
     #pathname
     #headPath
@@ -10,17 +13,21 @@ class Refs {
         this.#headPath = path.join(this.#pathname, 'HEAD')
     }
 
-    updateHead(id) {
-        const flag = fs.constants.O_WRONLY | fs.constants.O_CREAT
-        fs.writeFile(this.#headPath, id,  { 
-            flag,
-            mode: '0644'
-         }, err => {
-            if (err) {
-                console.error(err)
-                process.exit(1)
-            }
-        })
+    async updateHead(id) {
+        var lockfile = new Lockfile(this.#headPath)
+
+        
+                    if(!(await lockfile.holdForUpdate())) {
+                        throw new LockDenied(`Could not aquire lock on file: ${this.#headPath}`)
+                    }
+        try {
+            
+            await lockfile.write(id)
+            await lockfile.write('\n')
+            await lockfile.commit()
+        } catch (err) {
+            console.error(err);
+        }
     }
 
     readHead() {

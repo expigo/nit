@@ -30,9 +30,12 @@ module.exports = Database
 function write(pathname, id, content) {
 
     var objectPath = path.join(pathname, id.slice(0, 2), id.slice(2))
+    if (fs.existsSync(objectPath))  {
+        console.log(`Object not changed since last commit. Skipping ${pathname}`);  // TODO: remove
+        return
+    }
     var dirname = path.dirname(objectPath)
-    const r = generateTempFilename()
-    var tempPath = path.join(dirname, r)
+    var tempPath = path.join(dirname, generateTempFilename())
     
     
     try {
