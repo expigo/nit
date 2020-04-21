@@ -31,7 +31,6 @@ switch (parseArgs._[0]) {
         break;
     case 'commit':
         onCommit()
-
         break;
     default:
         error(`Not a nit command: ${parseArgs._[0]}`)
@@ -108,7 +107,8 @@ function onCommit() {
 
                     database.store(blob)
 
-                    return new Entry(file.name, blob.id)
+                    const stat = ws.statFile(file.name)
+                    return new Entry(file.name, blob.id, stat)
                   })
 
 
@@ -143,8 +143,5 @@ function onCommit() {
 
         console.log(`[${isRoot} ${commit.id}] ${message.split('\n')[0]}`);
 
-    })
-
-
-        
+    }) 
 }

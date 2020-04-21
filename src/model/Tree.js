@@ -1,5 +1,4 @@
 class Tree {
-    static MODE = '100644'  // TODO
     static TYPE = 'tree'
 
     #entries
@@ -8,13 +7,13 @@ class Tree {
     
     constructor(entries) {
         this.#entries = entries
-        this.#data = this.#entries.map(e => encodeTree(Tree.MODE, e.name, e.id))
+        this.#data = this.#entries.map(e => encodeTree(e.mode, e.name, e.id))
         this.#id = require('crypto').createHash('sha1').update(this.getContent()).digest('hex')
 
     }
 
     toString() {
-        const encoded = this.#entries.map(e => encodeTree(Tree.MODE, e.name, e.id))
+        const encoded = this.#entries.map(e => encodeTree(e.mode, e.name, e.id))
         return encoded.toString('utf8')
     }
 

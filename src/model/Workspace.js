@@ -16,6 +16,10 @@ class Workspace {
         return fs.readFileSync(path.join(this.#pathname, absolutePathToFile))
     }
 
+    statFile(filename) {
+        return fs.statSync(path.join(this.#pathname, filename))
+    }
+
 }
 
 Workspace.IGNORE = ['.', '..', '.nit']
