@@ -6,15 +6,17 @@ const fs = require('fs')
 const path = require('path')
 const chalk = require('chalk')
 
-const {resolveAbsolutePath} = require('./utils/index')
-const Workspace = require('./model/Workspace')
-const Database = require('./model/Database')
-const Blob = require('./model/Blob')
-const Entry = require('./model/Entry')
-const Tree = require('./model/Tree')
-const Author = require('./model/Author')
-const Commit = require('./model/Commit')
-const Refs = require('./model/Refs')
+console.log('$$$$',process.cwd());
+
+const {resolveAbsolutePath} = require(`../utils/index`)
+const Workspace = require(`../model/Workspace`)
+const Database = require(`../model/Database`)
+const Blob = require(`../model/Blob`)
+const Entry = require(`../model/Entry`)
+const Tree = require(`../model/Tree`)
+const Author = require(`../model/Author`)
+const Commit = require(`../model/Commit`)
+const Refs = require(`../model/Refs`)
 
 var parseArgs = require("minimist")(process.argv.slice(2), {
     boolean: ["help"],
