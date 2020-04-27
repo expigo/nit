@@ -4,6 +4,7 @@ class Entry{
     // git distinguishes only two file modes:
     static REGULAR_MODE = '100644'
     static EXECUTABLE_MODE = '100755'
+    static DIRECTORY_MODE = '40000'
 
     #file
     #id

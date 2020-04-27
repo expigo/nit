@@ -9,5 +9,8 @@ const resolveAbsolutePath = cwd => optRelative =>
         .map(x => path.join(cwd, optRelative))
         .fold(()=> cwd, x=>x)
 
+
+const mapify = obj =>  Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, v * v]));
+
     
-module.exports = { resolveAbsolutePath }
+module.exports = { resolveAbsolutePath, mapify }

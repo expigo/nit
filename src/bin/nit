@@ -5,7 +5,6 @@ const fs = require('fs')
 const path = require('path')
 const chalk = require('chalk')
 
-console.log('$$$$',process.cwd());
 
 const {resolveAbsolutePath} = require(`../utils/index`)
 const Workspace = require(`../model/Workspace`)
@@ -84,7 +83,20 @@ function repoInit(optRelativePath) {
 
 }
 
-function onCommit() {
+function onCommit() {    
+    let message = ''
+    process.stdin.resume();
+    process.stdin.setEncoding('utf8');
+
+    process.stdin.on('readable', () => {
+        let chunk
+
+        while ((chunk = process.stdin.read()) !== null) {
+            message += chunk
+
+        }
+
+    })
 
     const rootPath = resolveAbsolutePath(process.cwd())()
     const gitPath = path.join(rootPath, '.nit')
@@ -115,32 +127,18 @@ function onCommit() {
 
     var tree = Tree.build(entries)
 
-    console.log(tree.entries);
-
     // tree.traverse(database.store)
-    // tree.traverse(x => database.store(x))
+    tree.traverse(x => database.store(x))
 
 
     var parent = refs.readHead()
     var name = process.env.NIT_AUTHOR_NAME
     var email = process.env.NIT_AUTHOR_EMAIL
     var author = new Author(name, email)
-
-   
-    var message = ''
-
-    process.stdin.setEncoding('utf8');
-
-    process.stdin.on('readable', () => {
-        let chunk
-        while ((chunk = process.stdin.read()) !== null) {
-            message += chunk
-        }
-    })
-
+ 
     const commit = new Commit(parent, tree.id, author, message)
-    process.stdin.on('end', () => {
 
+    process.stdin.on('end', () => {
         database.store(commit)
         refs.updateHead(commit.id)
 
@@ -150,3 +148,12 @@ function onCommit() {
 
     }) 
 }
+
+process.on('uncaughtException', (err, origin) => {
+    fs.writeSync(
+      process.stderr.fd,
+      `Caught exception: ${err}\n` +
+      `Exception origin: ${origin}`
+    );
+  });
+  

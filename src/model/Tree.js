@@ -1,4 +1,5 @@
 const Blob = require('./Blob')
+const { mapify } = require('../utils/index')
 
 class Tree {
     static TYPE = 'tree'
@@ -10,25 +11,17 @@ class Tree {
     constructor() {
         this.#entries = {}
         this.#data = []
-
-        // this.#data = this.#entries.map(e => encodeTree(e.mode, e.name, e.id))
-        // this.#data = this.#entries.foreach(this.addEntry)
-        // this.#id = require('crypto').createHash('sha1').update(this.getContent()).digest('hex')
-
     }
 
     toString() {
-        // const encoded = this.#entries.map(e => encodeTree(e.mode, e.name, e.id))
-        return this.data.toString('utf8')
+        return this.#data
     }
 
     getByteLength() {
-        console.log(this.data);
         return Buffer.concat(this.data).length
     }
 
     getContent() {
-        console.log('getConnet', this);
         const content = `${Tree.TYPE} ${this.getByteLength()}\0${this.toString()}`
         return content
     }
@@ -44,10 +37,9 @@ class Tree {
         const tree = new Tree()
 
         entries.forEach(e => {
-            // const splittedRelativePath = e.relativePath.split(require('path').sep)
-            // const name = splittedRelativePath.pop()
             tree.addEntry(e.parentDirectories(), e)
         })
+
         return tree
     }
 
@@ -64,20 +56,38 @@ class Tree {
     traverse(cb) {
         for (const e in this.#entries) {
             if (this.#entries[e] instanceof Tree) {
-                console.log('Going deeper...', this.#entries[e].entries);
                 this.#entries[e].traverse(cb)
-                for (const e in this.#entries) {
-                    if (this.#entries.hasOwnProperty(e)) {
-                        const entry = this.#entries[e];
-                        this.#data.push(encodeTree(entry.mode, entry.name, entry.id))
-                    }
-                }
-                cb(this.#entries[e])
             }
         }
+        this.encodeData()
+        this.setId()
+        cb(this)
     }
+
+    encodeData() {
+        this.data = Object.entries(this.#entries).map(([name,e]) =>  {
+            return encodeTree(e.mode, name, e.id)
+        })
+    }
+
+    setId() {
+        this.#id = require('crypto').createHash('sha1').update(this.getContent()).digest('hex')
+    }
+
+    set data(data) {
+        this.#data = data
+    }
+
+    get data() {
+        return this.#data
+    }
+
     get entries() {
         return this.#entries
+    }
+    
+    get mode() {
+        return require('./Entry').DIRECTORY_MODE
     }
 }
 
@@ -94,7 +104,6 @@ function encodeTree(mode, name, id) {
     var encodedName = encoder.encode(name.padEnd(name.length + 1, '\0'))
     var encodedId = Uint8Array.from(hexToBytes(id))
     var bufLength = encodedMode.length + encodedName.length + encodedId.length;
-
 
     return Buffer.concat([encodedMode, encodedName, encodedId], bufLength)
 

@@ -10,7 +10,6 @@ class Database {
 
     
     store(object) {
-        console.log('&&DB.store', object, this);
         this.writeObject(this.#pathname, object.id, object.getContent())
     }
 
@@ -50,12 +49,13 @@ function write(pathname, id, content) {
     }  
 
     const buffer = require('zlib').deflateSync(content) 
-        fs.writeFile(fd, buffer, err => {
-            if (err) {
-                console.error('An error occurred:', err);
-                process.exitCode = 1;
-              }
-        })
+
+    fs.writeFile(fd, buffer, err => {
+        if (err) {
+            console.error('An error occurred:', err);
+            process.exitCode = 1;
+            }
+    })
 
     fs.renameSync(tempPath, objectPath)
 
