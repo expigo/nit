@@ -8,17 +8,57 @@ class Workspace {
         this.#pathname = path
     }
 
-    listFiles() {
-        return fs.readdirSync(this.#pathname, { withFileTypes: true}).filter(obj => !Workspace.IGNORE.includes(obj.name))
+
+    listFiles(dir = this.#pathname, options = {}) {
+        const locationsToIgnore = options.exclude 
+        ? Workspace.IGNORE.concat(options.exclude)
+        : Workspace.IGNORE 
+
+        
+        const dirHandle = fs.opendirSync(dir)
+        var file
+        var filenames = []
+        while(file =  dirHandle.readSync()) {
+          if(locationsToIgnore.includes(file.name)) {
+              console.log('*SCAN* Skipping:', file.name);
+              continue
+          }
+            filenames.push(file)
+        }
+
+        const entries = filenames.flatMap(dirent => {
+            const filepath = path.join(dir, dirent.name)
+
+            var entry = []
+            try {
+                if (fs.existsSync(filepath)) {
+                  if(dirent.isDirectory()) {
+                      entry = this.listFiles(filepath)
+                    } else {
+                    dirent.relativePath = path.relative(this.#pathname, filepath)
+                    entry = dirent
+                    }
+                } else {
+                }
+              } catch(err) {
+                console.error(err)
+              }
+            return entry
+        })
+        
+        dirHandle.closeSync()
+        return entries
     }
 
-    readFile(absolutePathToFile) {
-        return fs.readFileSync(path.join(this.#pathname, absolutePathToFile))
+    readFile(relativePathToFile) {
+        return fs.readFileSync(path.join(this.#pathname, relativePathToFile), { encoding: 'utf8' })
     }
 
-    statFile(filename) {
-        return fs.statSync(path.join(this.#pathname, filename))
+    statFile(relativePathToFile) {
+        return fs.statSync(path.join(this.#pathname, relativePathToFile), { encoding: 'utf8' })
     }
+
+
 
 }
 

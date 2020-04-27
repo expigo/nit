@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-
 'use strict';
 
 const fs = require('fs')
@@ -101,27 +100,31 @@ function onCommit() {
     const database = new Database(dbPath)
     const  refs = new Refs(gitPath)
 
-    var entries = ws.listFiles().filter(file => !file.isDirectory()) // TODO: we need to go deeper! (store dirs as well)
-                //   .map(file => file.name)
+    var entries = ws.listFiles()
                   .map(function storeFile(file) {
-                      var data = ws.readFile(file.name)
+                      var data = ws.readFile(file.relativePath)
                       var blob = new Blob(data)
 
-                    database.store(blob)
+                      database.store(blob)
 
-                    const stat = ws.statFile(file.name)
-                    return new Entry(file.name, blob.id, stat)
+                      const stat = ws.statFile(file.relativePath)
+                      return new Entry(file, blob.id, stat)
                   })
 
+    
 
-    const tree = new Tree(entries)
-    database.store(tree)
+    var tree = Tree.build(entries)
+
+    console.log(tree.entries);
+
+    // tree.traverse(database.store)
+    // tree.traverse(x => database.store(x))
 
 
-    const parent = refs.readHead()
-    const name = process.env.NIT_AUTHOR_NAME
-    const email = process.env.NIT_AUTHOR_EMAIL
-    const author = new Author(name, email)
+    var parent = refs.readHead()
+    var name = process.env.NIT_AUTHOR_NAME
+    var email = process.env.NIT_AUTHOR_EMAIL
+    var author = new Author(name, email)
 
    
     var message = ''

@@ -10,6 +10,7 @@ class Database {
 
     
     store(object) {
+        console.log('&&DB.store', object, this);
         this.writeObject(this.#pathname, object.id, object.getContent())
     }
 
