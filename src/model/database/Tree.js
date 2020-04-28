@@ -1,5 +1,5 @@
 const Blob = require('./Blob')
-const { mapify } = require('../utils/index')
+const { mapify } = require('../../utils/index')
 
 class Tree {
     static TYPE = 'tree'
@@ -87,7 +87,7 @@ class Tree {
     }
     
     get mode() {
-        return require('./Entry').DIRECTORY_MODE
+        return require('../Entry').DIRECTORY_MODE
     }
 }
 
