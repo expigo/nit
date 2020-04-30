@@ -32,6 +32,9 @@ switch (parseArgs._[0]) {
     case 'commit':
         onCommit()
         break;
+    case 'add':
+        onAdd()
+        break
     default:
         error(`Not a nit command: ${parseArgs._[0]}`)
 
@@ -147,6 +150,10 @@ function onCommit() {
         console.log(`[${isRoot} ${commit.id}] ${message.split('\n')[0]}`);
 
     }) 
+}
+
+function onAdd() {
+    console.log('adddd');
 }
 
 process.on('uncaughtException', (err, origin) => {
