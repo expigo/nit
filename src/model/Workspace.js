@@ -55,7 +55,7 @@ class Workspace {
     }
 
     statFile(relativePathToFile) {
-        return fs.statSync(path.join(this.#pathname, relativePathToFile), { encoding: 'utf8' })
+        return fs.statSync(path.join(this.#pathname, relativePathToFile), { bigint: true})
     }
 
 

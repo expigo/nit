@@ -17,11 +17,10 @@ class Refs {
         var lockfile = new Lockfile(this.#headPath)
 
         
-                    if(!(await lockfile.holdForUpdate())) {
-                        throw new LockDenied(`Could not aquire lock on file: ${this.#headPath}`)
-                    }
+        if(!(await lockfile.holdForUpdate())) {
+            throw new LockDenied(`Could not aquire lock on file: ${this.#headPath}`)
+        }
         try {
-            
             await lockfile.write(id)
             await lockfile.write('\n')
             await lockfile.commit()

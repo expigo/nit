@@ -37,7 +37,7 @@ class Entry{
       }
 
     valueOf() {
-        return `${this.#file.relativePath}  ${this.#id}`
+        return `xxx ${this.#file.relativePath}  ${this.#id}`
     }
 
 
@@ -59,7 +59,13 @@ class Entry{
         return this.#id   
     }
 
+    get file() {
+        return this.#file
+    }
     
+    get stat() {
+        return this.#stat
+    }
     
 }
 

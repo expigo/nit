@@ -1,5 +1,4 @@
-const Blob = require('./Blob')
-const { mapify } = require('../../utils/index')
+const { hexToBytes } = require('../../utils/index')
 
 class Tree {
     static TYPE = 'tree'
@@ -107,10 +106,4 @@ function encodeTree(mode, name, id) {
 
     return Buffer.concat([encodedMode, encodedName, encodedId], bufLength)
 
-}
-
-function hexToBytes(hex) {
-    for (var bytes = [], c = 0; c < hex.length; c += 2)
-    bytes.push(parseInt(hex.substr(c, 2), 16));
-    return bytes;
 }

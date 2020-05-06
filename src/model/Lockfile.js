@@ -8,7 +8,7 @@ class Lockfile {
     #filePath
     #lockPath
     #lock = null
-
+    
     constructor(filePath) {
         this.#filePath = filePath
         this.#lockPath = this.#filePath + '.lock'
@@ -67,6 +67,7 @@ class Lockfile {
 ${this.#lockPath}
 ${this.#lock}`
     }
+
 
 }
 

@@ -15,6 +15,7 @@ const Tree = require(`../model/database/Tree`)
 const Author = require(`../model/database/Author`)
 const Commit = require(`../model/database/Commit`)
 const Refs = require(`../model/Refs`)
+const Index = require('../model/Index')
 
 var parseArgs = require("minimist")(process.argv.slice(2), {
     boolean: ["help"],
@@ -33,7 +34,7 @@ switch (parseArgs._[0]) {
         onCommit()
         break;
     case 'add':
-        onAdd()
+        onAdd(parseArgs._[1])
         break
     default:
         error(`Not a nit command: ${parseArgs._[0]}`)
@@ -152,15 +153,40 @@ function onCommit() {
     }) 
 }
 
-function onAdd() {
-    console.log('adddd');
+function onAdd(file = 'test.js') {
+    const rootPath = resolveAbsolutePath(process.cwd())()
+    const gitPath = path.join(rootPath, '.nit')
+    const dbPath = path.join(gitPath, 'objects')
+    const indexPath = path.join(gitPath, 'index')
+
+    const workspace = new Workspace(rootPath)
+    const db = new Database(dbPath)
+    const index = new Index(indexPath)
+
+    const data = workspace.readFile(path.normalize(file))
+    const stat = workspace.statFile(file)
+    
+    const blob = new Blob(data)
+    db.store(blob)
+    index.add(file, blob.id, stat)
+    
+    index.writeUpdates().then(() => {
+        process.exit(0)
+    })
 }
 
+process.on('unhandledRejection', function (reason, p) {
+    //I just caught an unhandled promise rejection, since we already have fallback handler for unhandled errors (see below), let throw and let him handle that
+    throw reason;
+  });
+
 process.on('uncaughtException', (err, origin) => {
+    console.log(err);
     fs.writeSync(
       process.stderr.fd,
       `Caught exception: ${err}\n` +
       `Exception origin: ${origin}`
     );
+    process.exit(1)
   });
   
